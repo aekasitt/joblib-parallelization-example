@@ -25,6 +25,7 @@
 * Example #2: `fashion.py`
 
   Before running this example, you must first download the [Kaggle Data](https://www.kaggle.com/datasets/nitinsss/fashion-dataset-with-over-15000-labelled-images?resource=download) and place on root folder as `dress.csv`
+  
   Without Parallelization
   ```sh
   python fashion.py
