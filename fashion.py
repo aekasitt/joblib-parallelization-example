@@ -2,8 +2,9 @@
 ### Standard Packages ###
 import os
 import time
-from uuid import uuid4 as uuid
+from argparse import ArgumentParser, Namespace
 from typing import List, Tuple
+from uuid import uuid4 as uuid
 
 ### Third-Party Packages ###
 import httpx
@@ -21,6 +22,13 @@ def extract_image_colors(url: str) -> Tuple[Tuple[int, int, int], Tuple[int, int
   return palette[0], palette[1]
 
 def main():
+  ### Parse arguments ##
+  parser: ArgumentParser = ArgumentParser()
+  parser.add_argument('--parallel', '-p', action='store_true', help='Run in parallel if flag enabled')
+  parser.add_argument('--jobs', '-j', type=int, default=-1, help='Number of jobs to run in parallel')
+  args: Namespace = parser.parse_args()
+
+  ### Load dataset ###
   data: DataFrame = read_csv('dress.csv') # Data from Kaggle, Fashion Dataset by nitinsss
   sample_size: int = 100
   
@@ -28,17 +36,19 @@ def main():
   secondary_colors: List[Tuple[int, int, int]] = []
   t1: float = time.time()
 
-  ### Without Parallelization ###
-  # for row in data[:sample_size].itertuples():
-  #   primary, secondary = extract_image_colors(row.image_url)
-  #   primary_colors.append(primary)
-  #   secondary_colors.append(secondary)
+  if args.parallel:
+    ### With Parallization ###
+    for primary, secondary in Parallel(n_jobs=args.jobs) \
+      (delayed(extract_image_colors)(img_url) for img_url in data.image_url.values[:sample_size]):
+      primary_colors.append(primary)
+      secondary_colors.append(secondary)
+  else:
+    ### Without Parallelization ###
+    for row in data[:sample_size].itertuples():
+      primary, secondary = extract_image_colors(row.image_url)
+      primary_colors.append(primary)
+      secondary_colors.append(secondary)
 
-  ### With Parallization ###
-  for primary, secondary in Parallel(n_jobs=-1) \
-    (delayed(extract_image_colors)(img_url) for img_url in data.image_url.values[:sample_size]):
-    primary_colors.append(primary)
-    secondary_colors.append(secondary)
   t2: float = time.time()
   print(f'Runtime: { t2 - t1 }')
 
