@@ -1,0 +1,21 @@
+### Workspace settings ###
+.vscode
+.idea
+
+### Dataset ###
+dress.csv
+
+### Downloaded images ###
+*.jpg
+
+### Python generated files ###
+*.py[cod]
+__pycache__/
+*$py.class
+
+### Environments ###
+.env
+.venv
+
+### OSX ###
+.DS_Store
